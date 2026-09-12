@@ -1,5 +1,3 @@
-import uuid
-
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -8,13 +6,13 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_get_clients_requires_authentication():
-    response = client.get("/clients")
+def test_get_projects_requires_authentication():
+    response = client.get("/projects")
 
     assert response.status_code == 401
 
 
-def test_get_clients():
+def test_get_projects():
     response = client.post(
         "/login",
         data={
@@ -28,7 +26,7 @@ def test_get_clients():
     token = response.json()["access_token"]
 
     response = client.get(
-        "/clients",
+        "/projects",
         headers={"Authorization": f"Bearer {token}"},
     )
 
@@ -36,7 +34,7 @@ def test_get_clients():
     assert isinstance(response.json(), list)
 
 
-def test_create_client():
+def test_create_project():
     response = client.post(
         "/login",
         data={
@@ -49,13 +47,12 @@ def test_create_client():
 
     token = response.json()["access_token"]
 
-    unique_email = f"test-client-{uuid.uuid4()}@example.com"
-
     response = client.post(
-        "/clients",
+        "/projects",
         json={
-            "name": "Test Client",
-            "email": unique_email,
+            "name": "Pytest Project",
+            "description": "Project created by automated test",
+            "client_id": 12,
         },
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -64,5 +61,5 @@ def test_create_client():
 
     data = response.json()
 
-    assert data["name"] == "Test Client"
-    assert data["email"] == unique_email
+    assert data["name"] == "Pytest Project"
+    assert data["client_id"] == 12
