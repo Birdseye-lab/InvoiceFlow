@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -46,10 +48,12 @@ def test_create_invoice():
 
     token = response.json()["access_token"]
 
+    unique_number = f"TEST-INV-{uuid.uuid4()}"
+
     response = client.post(
         "/invoices",
         json={
-            "number": "TEST-INV-001",
+            "number": unique_number,
             "amount": 500.00,
             "status": "unpaid",
             "project_id": 5,
@@ -61,7 +65,7 @@ def test_create_invoice():
 
     data = response.json()
 
-    assert data["number"] == "TEST-INV-001"
+    assert data["number"] == unique_number
     assert data["amount"] == 500.00
     assert data["status"] == "unpaid"
     assert data["project_id"] == 5
